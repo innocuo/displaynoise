@@ -22,8 +22,8 @@ function draw() {
 
 	var posy=Math.round(Math.sin(count/multiplier2)*(count/20))
 	posy *=Math.round(Math.atan((count+30)/multiplier)*3)
+	posy -=Math.round(Math.tan((count*multiplier2)/multiplier3))
 	posy +=Math.round(Math.sin((count*second())/multiplier3)*3)
-	posy -= Math.round(Math.tan(count/multiplier2));
 
 	point_buffer.unshift([count, height*0.5+posy])
 	if(point_buffer.length>width){
@@ -31,6 +31,7 @@ function draw() {
 	}
 	for(var i=0;i<point_buffer.length;i++){
 		point(point_buffer[i][0]+Math.random()*width/2, point_buffer[i][1]/5);
+	//	point(point_buffer[i][0], point_buffer[i][1]);
 		if(random(0,10)>9) point(40+random(0,4), point_buffer[i][1]+random(-10,60));
 }
 
@@ -43,18 +44,19 @@ function draw() {
 	}
 
 	for(var k=0;k<height;k++){
-		var half_width = 15+Math.floor(posy*3);
+		var half_width = Math.min(12-Math.floor(posy), width/3);
 		if(posy<5 || k%2==0){
 			continue;
 		}
-		var extra = (k>=point_buffer.length)? 0 : (point_buffer[k][1]-(height/2))*3;
+		var extra = (k>=point_buffer.length)? 0 : (point_buffer[k][1]-(height/2))*0.6;
+
 		line(width/2-half_width+extra, k, width/2+half_width+extra,k )
 	}
 
-	if(posy>1){
+	if(posy>3){
 		draw_noise(posy);
 	}else{
-		rect(width/2-10, height/2-15, 20,30);
+		rect(width/2-10, height/2-15-posy/3, 20,30);
 	}
 }
 
