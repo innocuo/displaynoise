@@ -1,6 +1,7 @@
 {
   "name": "p5sketches",
   "projects": [
-    "displaynoise"
+    "displaynoise",
+    "displaynoise2"
   ]
 }
