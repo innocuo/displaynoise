@@ -21,20 +21,23 @@ function draw() {
 	stroke(200, 200, 255);
 
 	var posy=Math.round(Math.sin(count/multiplier2)*(count/20))
-	posy +=Math.round(Math.tan((count+30)/multiplier)*3)
-	posy +=Math.round(Math.sin((count*count)/multiplier3)*3)
+	posy *=Math.round(Math.atan((count+30)/multiplier)*3)
+	posy +=Math.round(Math.sin((count*second())/multiplier3)*3)
+	posy -= Math.round(Math.tan(count/multiplier2));
+
 	point_buffer.unshift([count, height*0.5+posy])
-	if(point_buffer.length>height){
+	if(point_buffer.length>width){
 		point_buffer.pop();
 	}
 	for(var i=0;i<point_buffer.length;i++){
 		point(point_buffer[i][0]+Math.random()*width/2, point_buffer[i][1]/5);
-	}
+		if(random(0,10)>9) point(40+random(0,4), point_buffer[i][1]+random(-10,60));
+}
 
 	count++;
 	if(count>width){
 		count=0;
-		multiplier = 10+Math.random()*100;
+		multiplier = 10+Math.random()*10;
 		multiplier2 = 2+Math.random()*80;
 		multiplier3 = 2+Math.random()*100;
 	}
