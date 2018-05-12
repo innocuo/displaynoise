@@ -2,6 +2,7 @@
   "name": "p5sketches",
   "projects": [
     "displaynoise",
-    "displaynoise2"
+    "displaynoise2",
+    "displaynoise3"
   ]
 }
