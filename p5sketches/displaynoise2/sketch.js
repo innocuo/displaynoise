@@ -1,12 +1,13 @@
-var noise_row_toggle = true;
+var noise_row_toggle = 0;
 var noise_row_buffer = [];
-
+var init_noise_row_pos;
 function setup() {
 	createCanvas(128, 64);
 	frameRate(40);
 	for(var i=0;i<30;i++){
 		noise_row_buffer.push(0);
 	}
+	init_noise_row_pos =  width/2-10;
 }
 
 var noise_buffer = [];
@@ -22,14 +23,14 @@ function draw() {
 	var row_buffer = [];
 
 	for( var i=0; i<width; i++){
-		var should_create = Math.random()*100 > 10;
+		var should_create = Math.random()*100 > 50;
 		if(should_create){
-			var line_length = 1 + Math.round(Math.random()*(width*0.05));
+			var line_length = 1 + Math.round(Math.random()*1);
 
 			line(i, 0, i+line_length, 0);
 
 			row_buffer.push([i,0, line_length]);
-			i = i+ line_length+3;
+			i = i+ line_length;
 		}
 	}
 
@@ -46,30 +47,43 @@ function draw() {
 	noise_buffer = row_buffer.concat( noise_buffer );
 
 	delay_side++;
-	if(delay_side>7){
+	var regenerate = Math.random()>0.8;
+	if(regenerate){
 		side_buffer = [];
 		for(var k=0;k<height;k++){
-			var side_length = 5+Math.round(Math.random()*(width*0.05));
+			var side_length = 4+Math.round(Math.random()*2);
 			line(0,k, side_length, k);
 			side_buffer.push([k, side_length])
 		}
 		delay_side = 0;
 	}else{
 		for(var k=0;k<side_buffer.length;k++){
-			side_buffer[k][1]+= (Math.random()>0.5? 2:-2);
+			side_buffer[k][1]+= (Math.random()>0.5? Math.round(Math.random()*1):-1);
 			line(0,side_buffer[k][0], side_buffer[k][1], side_buffer[k][0]);
 		}
 	}
 
-	noise_row_toggle = !noise_row_toggle;
-
-	if(noise_row_toggle){
+	noise_row_toggle++;
+	if(noise_row_toggle>1){
+		if(noise_row_toggle>5){
+			noise_row_toggle = 0;
+		}
+		if(regenerate){
+			noise_row_buffer = noise_row_buffer.map(function(item){
+				return 0;
+			});
+		}
 		for(var i=0;i<noise_row_buffer.length;i++){
-		 	var extra = (Math.random()>0.5? -3:2);
-			if(noise_buffer[i]){
-				
+		 	var extra = (Math.random()>0.7? -5:2);
+			if(noise_row_buffer[i]+extra> 90 || noise_row_buffer[i]+extra < -92){
+				extra = -extra*2;
 			}
-			var line_x = width/2-10 + extra;
+			// if(i==0){
+			// 	console.log(noise_row_buffer[i])
+			// }
+			noise_row_buffer[i] += extra;
+
+			var line_x = init_noise_row_pos + noise_row_buffer[i];
 			line(line_x,height/2-15+i, line_x+20, height/2-15+i);
 		}
 		// rect(width/2-10, height/2-15, 20,30);
