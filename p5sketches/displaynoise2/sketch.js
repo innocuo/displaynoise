@@ -4,7 +4,7 @@ var init_noise_row_pos;
 
 function setup() {
 	createCanvas(128, 64);
-	frameRate(40);
+	frameRate(35);
 	for(var i=0;i<30;i++){
 		noise_row_buffer.push(0);
 	}
@@ -47,8 +47,7 @@ function draw() {
 	}
 	noise_buffer = row_buffer.concat( noise_buffer );
 
-	delay_side++;
-	var regenerate = Math.random()>0.8;
+	var regenerate = Math.random()>0.7;
 	if(regenerate){
 		side_buffer = [];
 		for(var k=0;k<height;k++){
@@ -58,15 +57,18 @@ function draw() {
 		}
 		delay_side = 0;
 	}else{
+		side_buffer.pop();
+		side_buffer.unshift([-1, 4+Math.round(Math.random()*2)])
 		for(var k=0;k<side_buffer.length;k++){
+			side_buffer[k][0]+=1;
 			side_buffer[k][1]+= (Math.random()>0.5? Math.round(Math.random()*1):-1);
 			line(0,side_buffer[k][0], side_buffer[k][1], side_buffer[k][0]);
 		}
 	}
 
 	noise_row_toggle++;
-	if(noise_row_toggle>1){
-		if(noise_row_toggle>5){
+	if(noise_row_toggle>4){
+		if(noise_row_toggle>9){
 			noise_row_toggle = 0;
 		}
 		if(regenerate){
@@ -74,6 +76,7 @@ function draw() {
 				return 0;
 			});
 		}
+		var distort_lines = Math.random()>0.8;
 		for(var i=0;i<noise_row_buffer.length;i++){
 		 	var extra = (Math.random()>0.7? -5:2);
 			if(noise_row_buffer[i]+extra> 90 || noise_row_buffer[i]+extra < -92){
@@ -85,7 +88,13 @@ function draw() {
 			noise_row_buffer[i] += extra;
 
 			var line_x = init_noise_row_pos + noise_row_buffer[i];
-			line(line_x,height/2-15+i, line_x+20, height/2-15+i);
+			if(distort_lines){
+				var distort1 = Math.round(Math.random()*10);
+				var distort2 = distort1+3;
+				line(line_x-distort2,height/2-15+i+distort1, line_x+20+distort2, height/2-15+i+distort2);
+			}else{
+				line(line_x,height/2-15+i, line_x+20, height/2-15+i);
+			}
 		}
 		// rect(width/2-10, height/2-15, 20,30);
 	}
