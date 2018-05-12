@@ -1,6 +1,7 @@
 var noise_row_toggle = 0;
 var noise_row_buffer = [];
 var init_noise_row_pos;
+
 function setup() {
 	createCanvas(128, 64);
 	frameRate(40);
