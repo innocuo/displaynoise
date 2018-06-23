@@ -1,9 +1,4 @@
-function setup() {
-	createCanvas(128, 64);
-	 frameRate(50);
-
-}
-
+//vars
 var count=0;
 var point_buffer=[];
 var multiplier = 10;
@@ -14,11 +9,23 @@ var noise_buffer = [];
 var noise_count = -1;
 var noise_row_toggle = true;
 
-function draw() {
-	background(0);
-	fill(200, 200, 255);
+let scolors = [90,190,255];
 
-	stroke(200, 200, 255);
+//set main screen
+function setup() {
+
+	createCanvas(128, 64);
+	frameRate(50);
+}
+
+
+//the actions
+function draw() {
+
+	background(0);
+
+	fill(scolors[0], scolors[1], scolors[2]);
+	stroke(scolors[0], scolors[1], scolors[2]);
 
 	var posy=Math.round(Math.sin(count/multiplier2)*(count/20))
 	posy *=Math.round(Math.atan((count+30)/multiplier)*3)
@@ -26,14 +33,18 @@ function draw() {
 	posy +=Math.round(Math.sin((count*second())/multiplier3)*3)
 
 	point_buffer.unshift([count, height*0.5+posy])
+
 	if(point_buffer.length>width){
 		point_buffer.pop();
 	}
+
 	for(var i=0;i<point_buffer.length;i++){
+
 		point(point_buffer[i][0]+Math.random()*width/2, point_buffer[i][1]/5);
-	//	point(point_buffer[i][0], point_buffer[i][1]);
-		if(random(0,10)>9) point(40+random(0,4), point_buffer[i][1]+random(-10,60));
-}
+
+		if(random(0,10)>9)
+			point(40+random(0,4), point_buffer[i][1]+random(-10,60));
+	}
 
 	count++;
 	if(count>width){
@@ -60,7 +71,9 @@ function draw() {
 	}
 }
 
+
 function draw_noise(amplifier){
+
 	var local_buffer;
 	if( noise_count<2 && noise_count >= 0 ){
 
