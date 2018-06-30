@@ -1,4 +1,5 @@
 
+const scolors = [90,190,255];
 
 var count=0;
 var point_buffer=[];
@@ -21,25 +22,37 @@ var current_pos={
 function setup() {
 	c=createCanvas(128, 64);
 
-	frameRate(30);
+	frameRate(3);
 
 }
 
 function draw() {
 	background(0);
-	fill(200, 200, 255);
-
-	stroke(200, 200, 255);
+	fill(scolors[0], scolors[1], scolors[2]);
+	stroke(scolors[0], scolors[1], scolors[2]);
 
 
 	for (let row = 0; row<8; row++){
 
 		for(var col=0;col<16; col++){
 			moveTo(col*8,row);
-			let rand1 = random(0,255);
+			//let rand1 = random(0,255);
+			//for(var block=0; block<8; block++){
+			//	if(rand1 > 200){
+			//		send( rand1);
+			//	}
+			//}
+
+			let rand1 = int(random(0,4));
 			for(var block=0; block<8; block++){
-				if(rand1 > 200){
-					send( rand1);
+				if(rand1 == 2){
+					send( 0x55);
+				}else if(rand1 == 1){
+					send(0x55<<block);
+				}else if(rand1 == 0){
+					send(0x55>>block);
+				}else if(rand1 == 4){
+					send( 0x00);
 				}
 			}
 		}
