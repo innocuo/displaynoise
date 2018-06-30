@@ -13,13 +13,15 @@ var noise_row_toggle = true;
 var capture;
 var recording = false;
 var c;
+
+var current_pos={
+	x: 0,
+	y: 0
+}
 function setup() {
 	c=createCanvas(128, 64);
-	//capture = createCapture(VIDEO);
-  //capture.size(128, 64);
-  //capture.hide();
-  setupGif();
-	 frameRate(50);
+
+	frameRate(30);
 
 }
 
@@ -29,98 +31,41 @@ function draw() {
 
 	stroke(200, 200, 255);
 
-	var posy=Math.round(Math.sin(count/multiplier2)*(count/20))
-	posy *=Math.round(Math.atan((count+30)/multiplier)*3)
-	posy -=Math.round(Math.tan((count*multiplier2)/multiplier3))
-	posy +=Math.round(Math.sin((count*second())/multiplier3)*3)
 
-	point_buffer.unshift([count, height*0.5+posy])
-	if(point_buffer.length>width){
-		point_buffer.pop();
-	}
-	for(var i=0;i<point_buffer.length;i++){
-		point(point_buffer[i][0]+Math.random()*width/2, point_buffer[i][1]/5);
-	//	point(point_buffer[i][0], point_buffer[i][1]);
-		if(random(0,10)>9) point(40+random(0,4), point_buffer[i][1]+random(-10,60));
-}
+	for (let row = 0; row<8; row++){
 
-	count++;
-	if(count>width){
-		count=0;
-		multiplier = 10+Math.random()*10;
-		multiplier2 = 2+Math.random()*80;
-		multiplier3 = 2+Math.random()*100;
-	}
-
-	for(var k=0;k<height;k++){
-		var half_width = Math.min(12-Math.floor(posy), width/3);
-		if(posy<5 || k%2==0){
-			continue;
-		}
-		var extra = (k>=point_buffer.length)? 0 : (point_buffer[k][1]-(height/2))*0.6;
-
-		line(width/2-half_width+extra, k, width/2+half_width+extra,k )
-	}
-
-	if(posy>3){
-		draw_noise(posy);
-	}else{
-		rect(width/2-10, height/2-15-posy/3, 20,30);
-	}
-
-
-	//image(capture, 0, 0, 128, 64);
-
-  if (recording ) {
-    gif.addFrame(c.elt, {delay:4, copy: false});
-  }
-}
-
-function draw_noise(amplifier){
-	var local_buffer;
-	if( noise_count<2 && noise_count >= 0 ){
-
-	}else{
-		noise_row_toggle = !noise_row_toggle;
-		noise_count = -1;
-		noise_buffer = [];
-		for(var i=0; i< height*width; i++){
-			var test_pixel = Math.random() * 100 > Math.min(99,800/amplifier);
-			var ypos = Math.floor(i/width);
-			if(ypos==amplifier){
-				continue;
-			}
-
-			if(test_pixel){
-				var xpos = i%width;
-				noise_buffer.push([ xpos, ypos ]);
+		for(var col=0;col<16; col++){
+			moveTo(col*8,row);
+			let rand1 = random(0,255);
+			for(var block=0; block<8; block++){
+				if(rand1 > 200){
+					send( rand1);
+				}
 			}
 		}
-
 	}
-
-	for(var i=0; i< noise_buffer.length; i++){
-		point(noise_buffer[i][0], noise_buffer[i][1]);
-	}
-	noise_count++
-
 }
+
+
+function moveTo(x, y){
+	current_pos.x = x;
+	current_pos.y = y;
+}
+
+function send( byte ){
+	for(var i=7;i>=0;i--){
+		if((byte >> i) & 1){
+			point(current_pos.x, (8*current_pos.y) + (7-i));
+		}
+	}
+	current_pos.x += 1;
+	if(current_pos.x > 127){
+		current_pos.x = 0;
+		current_pos.y +=1;
+	}
+}
+
 
 function mousePressed() {
-  recording = !recording;
-  if (!recording) {
-    gif.render();
-  }
-}
 
-function setupGif() {
-  gif = new GIF({
-    workers: 50,
-    quality: 10
-  });
-
-  gif.on('finished', function(blob) {
-    window.open(URL.createObjectURL(blob));
-    setupGif();
-  });
 }
