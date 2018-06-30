@@ -19,12 +19,17 @@ var current_pos={
 	x: 0,
 	y: 0
 }
+let curr_angle = 0;
+let curr_inc = 1;
 function setup() {
 	c=createCanvas(128, 64);
 
-	frameRate(3);
+	frameRate(10);
+
+	//curr_inc = TWO_PI / 25.0;
 
 }
+
 
 function draw() {
 	background(0);
@@ -35,6 +40,7 @@ function draw() {
 	for (let row = 0; row<8; row++){
 
 		for(var col=0;col<16; col++){
+
 			moveTo(col*8,row);
 			//let rand1 = random(0,255);
 			//for(var block=0; block<8; block++){
@@ -43,22 +49,34 @@ function draw() {
 			//	}
 			//}
 
-			let rand1 = int(random(0,4));
+			// let rand1 = int(random(0,4));
+			// for(var block=0; block<8; block++){
+			// 	if(rand1 == 2){
+			// 		send( 0x55);
+			// 	}else if(rand1 == 1){
+			// 		send(0x55<<block);
+			// 	}else if(rand1 == 0){
+			// 		send(0x55>>block);
+			// 	}else if(rand1 == 4){
+			// 		send( 0x00);
+			// 	}
+			// }
 			for(var block=0; block<8; block++){
-				if(rand1 == 2){
-					send( 0x55);
-				}else if(rand1 == 1){
-					send(0x55<<block);
-				}else if(rand1 == 0){
-					send(0x55>>block);
-				}else if(rand1 == 4){
-					send( 0x00);
+				let sin1 = sin(curr_angle);
+				curr_angle += (get_inc());
+				if(curr_angle>TWO_PI){
+					curr_angle = 0;
 				}
+
+				if(sin1>0) send(0xff | (sin1*curr_inc))
 			}
 		}
 	}
 }
 
+function get_inc(){
+	return curr_inc*PI/180;
+}
 
 function moveTo(x, y){
 	current_pos.x = x;
@@ -79,6 +97,13 @@ function send( byte ){
 }
 
 
-function mousePressed() {
-
+function keyPressed() {
+	switch(key){
+		case 'J':
+			curr_inc+=0.5;
+		break;
+		case 'K':
+			curr_inc-=0.5;
+		break;
+	}
 }
