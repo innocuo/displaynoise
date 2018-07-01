@@ -20,16 +20,16 @@ var current_pos={
 	y: 0
 }
 let curr_angle = 0;
-let curr_inc = 44.5;
-let sinlimit = 0.8;
+let curr_inc = 22;
+let sinlimit = 0.18;
 
 let curr_angle2 = 0;
-let curr_inc2 = 90.5;
-let sin2_multiplier = 45;
+let curr_inc2 = 33;
+let sin2_multiplier = 100;
 function setup() {
 	c=createCanvas(128, 64);
 
-	frameRate(22);
+	frameRate(42);
 
 	//curr_inc = TWO_PI / 25.0;
 
@@ -51,7 +51,7 @@ function draw() {
 			curr_angle2 = curr_angle2-360;
 		}
 
-		let curr_angle = 180+(row*22) + (sin2*sin2_multiplier);
+		curr_angle += 10+(row*1) + (sin2*sin2_multiplier);
 
 		for(var col=0;col<16; col++){
 
@@ -97,7 +97,7 @@ function draw() {
 					curr_angle = curr_angle-360;
 				}
 
-				if(abs(sin1)>sinlimit && sin1>0) send(0x0 | sin1*(sin2*88) )
+				if(abs(sin1)>sinlimit && sin1>0) send(0x0 | sin1*(88) )
 				if(abs(sin1)>sinlimit && sin1<0) send(0x0 )
 				if(abs(sin1)<sinlimit ) send(0x00 )
 			}
