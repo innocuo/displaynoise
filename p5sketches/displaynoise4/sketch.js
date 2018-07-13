@@ -24,16 +24,16 @@ var current_pos={
 	y: 0
 }
 let curr_angle = 0;
-let curr_inc = 10;
-let sinlimit = 0.8;
+let curr_inc = 22;
+let sinlimit = 0.6;
 
 let curr_angle2 = 0;
-let curr_inc2 = 100;
+let curr_inc2 = 1;
 let sin2_multiplier = 100;
 function setup() {
 	c=createCanvas(128, 64);
 
-	frameRate(23);
+	frameRate(24);
 
 	//curr_inc = TWO_PI / 25.0;
 
@@ -92,7 +92,8 @@ function draw() {
 			curr_angle2 = curr_angle2-360;
 		}
 
-		curr_angle += 90+(row*21) + (sin2*sin2_multiplier);
+		//curr_angle += 90+(row*21) + (sin2*sin2_multiplier);
+		curr_angle += 90;
 
 		for(var col=0;col<16; col++){
 
@@ -133,7 +134,7 @@ function draw() {
 				let sin1 = sin(curr_angle*PI/180);
 				//console.log(curr_angle, sin1)
 				//console.log(sin1)
-				curr_angle += (get_inc());
+				curr_angle += (get_inc())*sin2 ;
 				if(curr_angle>360){
 					curr_angle = curr_angle-360;
 				}
@@ -143,11 +144,29 @@ function draw() {
 						sprite_idx=127;
 					}
 				}
-				//send(main_sprite[sprite_idx*8 + block])
+				// if(abs(sin1)>sinlimit && sin1>0) send(0x0 | main_sprite[sprite_idx*8+block] )
+				//if(abs(sin1)>sinlimit && sin1>0)
 
-				if(abs(sin1)>sinlimit && sin1>0) send(0x0 | main_sprite[sprite_idx*8+block]& sin1*(255) )
-				if(abs(sin1)>sinlimit && sin1<0) send(0x0 | main_sprite[sprite_idx*8+block]| abs(sin1)*(255))
-				if(abs(sin1)<sinlimit ) send(0x00 )
+				if(abs(sin1)>sinlimit && sin1>0)
+				{
+					//send( 1<<(int(sin1*sin2*3)+4) )
+					send(0x0 | main_sprite[sprite_idx*8+block] & (sin1*sin2*127)+(127) )
+				}
+				else if(abs(sin1)>sinlimit && sin1<0){
+					send(0x00 )
+					send( 1<<(int(sin1*sin2*3)+4) )
+//					send(0x0 | main_sprite[sprite_idx*8+block] & (sin1*sin2*127)+(127) )
+				}
+				else {
+					//send(0x00 )
+					send(0x0 | main_sprite[sprite_idx*8+block] & 1 )
+
+				}
+ //console.log(1>>Math.round(sin1*7))
+				//send(main_sprite[sprite_idx*8 + block])
+				// if(abs(sin1)>sinlimit && sin1>0) send(0x0 | main_sprite[sprite_idx*8+block]& sin1*(255) )
+			//	if(abs(sin1)>sinlimit && sin1<0) send(0x0 | main_sprite[sprite_idx*8+block]| abs(sin1)*(255))
+			//	if(abs(sin1)<sinlimit ) send(0x00 )
 			}
 		}
 	}
