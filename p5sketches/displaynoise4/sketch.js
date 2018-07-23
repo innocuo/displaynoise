@@ -147,10 +147,12 @@ function draw() {
 				// if(abs(sin1)>sinlimit && sin1>0) send(0x0 | main_sprite[sprite_idx*8+block] )
 				//if(abs(sin1)>sinlimit && sin1>0)
 
-
+send( 1<<(int(sin1*3)+4) )
+continue;
 				if(abs(sin1)>sinlimit && sin1>0)
 				{
 					//send( 1<<(int(sin1*sin2*3)+4) )
+
 					send(0x0 | main_sprite[sprite_idx*8+block] & (sin1*sin2*127)+(counter) )
 				}
 				else if(abs(sin1)>sinlimit && sin1<0){
