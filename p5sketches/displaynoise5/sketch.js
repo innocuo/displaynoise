@@ -16,7 +16,7 @@ function setup() {
 
 	c=createCanvas(128, 64);
 
-	frameRate(10);
+	frameRate(1);
 }
 
 
@@ -32,12 +32,16 @@ function draw() {
 
 	curr_angle = 0;
 
+	let row_total = 8;
+	let row_height = 8;
+
 	//move from top row to bottom row
-	for (let row = 0; row<8; row++){
+	for (let row = 0; row< row_total; row+=row_height){
 
 		//move from left to right
-		for(var col=0;col<16; col++){
+		for(var col=0; col<16; col++){
 
+			//multiplied by 8 because each col is 8 pixels wide
 			moveTo(col*8,row);
 
 
@@ -50,10 +54,27 @@ function draw() {
 					curr_angle = curr_angle-360;
 				}
 
-				send( 1<<(int(sin1*3)+4) )
-				moveToNext();
-				continue;
+				let wave_val = sin1+1; //now values go from 0 to 2;
+				let pixel_pos = (int(wave_val*((row_total*row_height)-1)/2));
 
+				let cache_pos = {x: current_pos.x, y: current_pos.y };
+
+				for(let ii=0; ii<row_height; ii++){
+					let pixel_divided = pixel_pos%8 ;
+
+					moveTo(cache_pos.x, cache_pos.y + (row_height-ii-1));
+
+					if(ii == int( pixel_pos/8 ) ){
+						send( 1<< pixel_divided);
+					}else{
+						send( 0 );
+					}
+
+				}
+
+				moveTo(cache_pos.x, cache_pos.y);
+
+				moveToNext();
 			}
 		}
 	}
