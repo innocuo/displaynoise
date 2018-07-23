@@ -9,20 +9,32 @@ var current_pos={
 }
 
 let curr_angle = 0;
-let curr_inc = 10;
+let curr_inc = 44;
 
+let curr_angle2 = 90;
+let curr_inc2 = 1;
+
+let pix_val = 0;
+
+let row_height = 8;
 
 function setup() {
 
 	c=createCanvas(128, 64);
 
-	frameRate(1);
+	frameRate(30);
 }
 
-
+let count = 0;
 function draw() {
-
-	background(0);
+	if(count == 0){
+		background(0);
+	}
+	count++;
+	if(count>1){
+		count=0;
+	}
+	//background(0);
 	fill(scolors[0], scolors[1], scolors[2]);
 	stroke(scolors[0], scolors[1], scolors[2]);
 
@@ -30,17 +42,20 @@ function draw() {
 	//we traverse the display from left to right from top to bottom.
 	//we draw pixels on vertical lines of 8 pixels.
 
-	curr_angle = 0;
+	// curr_angle = 0;
 
 	let row_total = 8;
-	let row_height = 8;
 
 	//move from top row to bottom row
 	for (let row = 0; row< row_total; row+=row_height){
 
+
 		//move from left to right
 		for(var col=0; col<16; col++){
-
+			curr_angle2 += curr_inc2 ;
+			if(curr_angle2>360){
+				curr_angle2 = curr_angle2-360;
+			}
 			//multiplied by 8 because each col is 8 pixels wide
 			moveTo(col*8,row);
 
@@ -55,7 +70,7 @@ function draw() {
 				}
 
 				let wave_val = sin1+1; //now values go from 0 to 2;
-				let pixel_pos = (int(wave_val*((row_total*row_height)-1)/2));
+				let pixel_pos = (int(wave_val*tan(curr_angle2*PI/180)*((row_total*row_height)-1)/2));
 
 				let cache_pos = {x: current_pos.x, y: current_pos.y };
 
@@ -65,9 +80,13 @@ function draw() {
 					moveTo(cache_pos.x, cache_pos.y + (row_height-ii-1));
 
 					if(ii == int( pixel_pos/8 ) ){
-						send( 1<< pixel_divided);
+						if(pix_val == 0){
+							send( 1<< pixel_divided);
+						}else{
+							send( pix_val & int(wave_val*255/2));
+						}
 					}else{
-						send( 0 );
+						//send( 0 );
 					}
 
 				}
@@ -117,4 +136,32 @@ function sendAndMove( byte ){
 
 	send( byte );
 	moveToNext();
+}
+
+
+function keyPressed() {
+	switch(key){
+		case 'J':
+			curr_inc+=0.5;
+		break;
+		case 'K':
+			curr_inc-=0.5;
+		break;
+		case 'G':
+			curr_inc2+=0.5;
+		break;
+		case 'H':
+			curr_inc2-=0.5;
+		break;
+		case 'L':
+			pix_val = random(1,255);
+		break;
+		case 'M':
+			row_height += 1;
+			if(row_height>8){
+				row_height=1;
+			}
+		break;
+	}
+	console.log (curr_inc, curr_inc2,row_height, pix_val)
 }
