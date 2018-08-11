@@ -1,4 +1,5 @@
 
+let mic;
 const scolors = [90,190,255];
 
 // current_post x moves from 0 to 127,
@@ -11,7 +12,7 @@ var current_pos={
 let curr_angle = 0;
 let curr_speed=20;
 let curr_inc = 28;
-let inc_every = 1;
+let inc_every = 2;
 let curr_inc_every = 0;
 
 let curr_angle2 = 90;
@@ -19,10 +20,11 @@ let curr_inc2 = 10;
 
 let pix_val = 0;
 
-let row_height = 8;
+let row_height = 1;
 
 function setup() {
-
+	mic = new p5.AudioIn();
+	mic.start();
 	c=createCanvas(128, 64);
 
 	frameRate(33);
@@ -30,6 +32,10 @@ function setup() {
 
 let count = 0;
 function draw() {
+
+  let vol = mic.getLevel();
+	curr_inc = 180 * vol;
+	curr_speed = 100*vol;
 	//if(count == 0){
 		background(0);
 	//}
@@ -52,7 +58,9 @@ function draw() {
 	if(curr_angle>360){
 		curr_angle = curr_angle-360;
 	}
-
+if(vol<10){
+	curr_angle -= 20;
+}
 	//move from top row to bottom row
 	for (let row = 0; row< row_total; row+=row_height){
 
