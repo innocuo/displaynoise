@@ -20,7 +20,7 @@ let curr_inc2 = 10;
 
 let pix_val = 0;
 
-let row_height = 1;
+let row_height = 8;
 
 function setup() {
 	mic = new p5.AudioIn();
@@ -32,10 +32,10 @@ function setup() {
 
 let count = 0;
 function draw() {
-
+	curr_angle = 0;
   let vol = mic.getLevel();
-	curr_inc = 180 * vol;
-	curr_speed = 100*vol;
+	curr_inc = 1800 * vol;
+	curr_speed = 20000*vol*vol;
 	//if(count == 0){
 		background(0);
 	//}
