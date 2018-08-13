@@ -10,9 +10,9 @@ var current_pos={
 }
 
 let curr_angle = 0;
-let curr_speed=20;
+let curr_speed= 0;
 let curr_inc = 28;
-let inc_every = 2;
+let inc_every = 1;
 let curr_inc_every = 0;
 
 let curr_angle2 = 90;
@@ -32,10 +32,14 @@ function setup() {
 
 let count = 0;
 function draw() {
-	curr_angle = 0;
+	//curr_angle = 0;
   let vol = mic.getLevel();
-	curr_inc = 1800 * vol;
-	curr_speed = 20000*vol*vol;
+	curr_inc =  (360*(ceil(300*vol)-1))/128; //2000* vol;
+	if(curr_inc>255){
+		curr_inc = 255;
+	}
+	curr_inc *=-1;
+	curr_speed = 900*vol;
 	//if(count == 0){
 		background(0);
 	//}
@@ -85,6 +89,10 @@ if(vol<10){
 				// tmp_angle += get_inc();
 				let sin1 = sin(tmp_angle*PI/180);
 
+				let inc_factor = (curr_inc/70);
+				if(inc_factor<0 && inc_factor>-1){
+					sin1 *= inc_factor;
+				}
 
 				let wave_val = sin1+1; //now values go from 0 to 2;
 
@@ -106,7 +114,10 @@ if(vol<10){
 
 					if(ii == int( pixel_pos/8 ) ){
 						if(pix_val == 0){
-							send( pixel2);
+							if(pixel2>0){
+								send(round(curr_inc*-1) >> pixel2 );
+							}
+							// send( pixel2);
 						}else{
 							send( pix_val & int(wave_val*255/2));
 						}
