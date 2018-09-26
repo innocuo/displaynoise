@@ -1,5 +1,5 @@
 let mic;
-const scolors = [90, 190, 255];
+const screenColor = { r: 90, g: 190, b: 255 };
 
 // current_post x moves from 0 to 127,
 // y moves from 0 to 7
@@ -47,8 +47,8 @@ function draw() {
     count = 0;
   }
   // background(0);
-  fill(scolors[0], scolors[1], scolors[2]);
-  stroke(scolors[0], scolors[1], scolors[2]);
+  fill(screenColor.r, screenColor.g, screenColor.b);
+  stroke(screenColor.r, screenColor.g, screenColor.b);
 
   // there are 16 columns, 8 rows. Each "cell" is 8x8  pixels.
   // we traverse the display from left to right from top to bottom.
