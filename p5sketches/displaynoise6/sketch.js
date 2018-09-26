@@ -1,3 +1,11 @@
+let display;
+let started = false;
+
+requirejs(['../../modules/display'], function(qdisplay) {
+  display = qdisplay;
+  started = true;
+});
+
 let mic;
 const screenColor = { r: 90, g: 190, b: 255 };
 
@@ -31,6 +39,8 @@ function setup() {
 
 let count = 0;
 function draw() {
+  if (!started) return;
+
   // curr_angle = 0;
   const vol = mic.getLevel();
   curr_inc = (360 * (ceil(300 * vol) - 1)) / 128; // 2000* vol;
