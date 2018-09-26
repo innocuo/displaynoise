@@ -1,6 +1,6 @@
 {
-  "extends": "airbnb-base",
+  "plugins": ["prettier"],
   "rules": {
-    "space-in-parens": [1, "always"]
+    "prettier/prettier": "error"
   }
 }
