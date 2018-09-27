@@ -9,13 +9,6 @@ requirejs(['../../modules/display'], function(qdisplay) {
 let mic;
 const screenColor = { r: 90, g: 190, b: 255 };
 
-// current_post x moves from 0 to 127,
-// y moves from 0 to 7
-const current_pos = {
-  x: 0,
-  y: 0
-};
-
 let curr_angle = 0;
 let curr_speed = 0;
 let curr_inc = 28;
@@ -86,7 +79,7 @@ function draw() {
         curr_angle2 -= 360;
       }
       // multiplied by 8 because each col is 8 pixels wide
-      moveTo(col * 8, row);
+      display.moveTo(col * 8, row);
 
       for (let block = 0; block < 8; block++) {
         // console.log(curr_angle, sin1)
@@ -105,7 +98,7 @@ function draw() {
 
         const pixel_pos = int((wave_val * (row_total * row_height - 1)) / 2);
 
-        const cache_pos = { x: current_pos.x, y: current_pos.y };
+        const cache_pos = { x: display.get_x(), y: display.get_y() };
 
         for (let ii = 0; ii < row_height; ii++) {
           const pixel_divided = pixel_pos % 8;
@@ -116,25 +109,25 @@ function draw() {
             // pixel2 |= 1<< (pixel_divided+lo)
           }
 
-          moveTo(cache_pos.x, cache_pos.y + (row_height - ii - 1));
+          display.moveTo(cache_pos.x, cache_pos.y + (row_height - ii - 1));
 
           if (ii == int(pixel_pos / 8)) {
             if (pix_val == 0) {
               if (pixel2 > 0) {
-                send(round(curr_inc * -1) >> pixel2);
+                display.send(round(curr_inc * -1) >> pixel2);
               }
               // send( pixel2);
             } else {
-              send(pix_val & int((wave_val * 255) / 2));
+              display.send(pix_val & int((wave_val * 255) / 2));
             }
           } else {
             // send( 0 );
           }
         }
 
-        moveTo(cache_pos.x, cache_pos.y);
+        display.moveTo(cache_pos.x, cache_pos.y);
 
-        moveToNext();
+        display.moveToNext();
       }
     }
   }
@@ -147,36 +140,6 @@ function get_inc() {
     return curr_inc;
   }
   return 0;
-}
-
-function moveTo(x, y) {
-  current_pos.x = x;
-  current_pos.y = y;
-}
-
-function moveToNext() {
-  // after displaying the data, move the position 1 pixel to the right
-  current_pos.x += 1;
-
-  // if it's reached the end of the screen, move down one row,
-  // and reset x pos to 0
-  // we're working on a 64x128 screen
-  if (current_pos.x > 127) {
-    moveTo(0, current_pos.y + 1);
-  }
-}
-
-function send(byte) {
-  for (let i = 7; i >= 0; i--) {
-    if ((byte >> i) & 1) {
-      point(current_pos.x, 8 * current_pos.y + (7 - i));
-    }
-  }
-}
-
-function sendAndMove(byte) {
-  send(byte);
-  moveToNext();
 }
 
 function keyPressed() {
