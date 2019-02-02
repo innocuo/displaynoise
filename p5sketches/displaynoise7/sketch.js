@@ -2,7 +2,7 @@ let display;
 let started = false;
 
 let mic;
-const screenColor = { r: 90, g: 190, b: 255 };
+const screenColor = { r: 99, g: 212, b: 255 };
 
 let curr_angle = 0;
 let curr_speed = 0;
@@ -12,7 +12,7 @@ let curr_inc_every = 0;
 
 let pix_val = 0;
 
-let row_height = 4;
+let row_height = 8;
 const row_total = 8;
 
 requirejs(['../../modules/display'], function(qdisplay) {
@@ -25,7 +25,7 @@ function setup() {
   mic.start();
   c = createCanvas(128, 64);
 
-  frameRate(32);
+  frameRate(45);
 }
 
 let count = 0;
@@ -34,11 +34,12 @@ function draw() {
 
   // curr_angle = 0;
   const vol = mic.getLevel();
-  curr_inc = (360 * (ceil(300 * vol) - 1)) / 90; // 2000* vol;
+  curr_inc = 2 * (ceil(9 * vol * 100) - 1); // 2000* vol;
+  curr_inc %= 360;
   if (curr_inc > 255) {
-    curr_inc = 1;
+    curr_inc = 10;
   }
-  curr_speed = 1900 * vol;
+  curr_speed = 50; // * vol;
   if (count == 0) {
     display.clear();
   }
@@ -78,12 +79,13 @@ function draw() {
         tmp_angle += get_inc() * (curr_row + 1);
 
         let sin1 = sin((tmp_angle * PI) / 180);
-
+        let wave_multiplier = 50 * vol;
         let wave_val = sin1 + 1; // now values go from 0 to 2;
-
+        wave_val *= wave_multiplier;
         const pixel_pos =
           curr_row * row_height * 8 +
-          round((wave_val * (8 * row_height - 1)) / 2);
+          round((wave_val * (8 * row_height - 1)) / 2) +
+          round(row_height * 8 * (1 - wave_multiplier) * 0.5);
 
         const cache_pos = { x: display.get_x(), y: display.get_y() };
 
