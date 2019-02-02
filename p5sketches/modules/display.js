@@ -1,4 +1,6 @@
 define(function() {
+  const display_width = 128;
+
   let current_pos = {
     x: 0,
     y: 0
@@ -7,7 +9,7 @@ define(function() {
   let display = {
     moveTo: function(x, y) {
       current_pos.x = x;
-      current_pos.y = y;
+      current_pos.y = y; //display is 64px high, but we group it in 8 rows of 8px
     },
     moveToNext: function() {
       // after displaying the data, move the position 1 pixel to the right
@@ -15,8 +17,8 @@ define(function() {
 
       // if it's reached the end of the screen, move down one row,
       // and reset x pos to 0
-      // we're working on a 64x128 screen
-      if (current_pos.x > 127) {
+      // we're working on a 128x64 screen
+      if (current_pos.x >= display_width) {
         display.moveTo(0, current_pos.y + 1);
       }
     },
@@ -36,6 +38,9 @@ define(function() {
     },
     get_y: function() {
       return current_pos.y;
+    },
+    clear: function() {
+      background(0);
     }
   };
 
