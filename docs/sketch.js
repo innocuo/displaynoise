@@ -17,15 +17,26 @@ const row_total = 8;
 
 requirejs(['modules/display'], function(qdisplay) {
   display = qdisplay;
-  started = true;
+  // started = true;
 });
 
 function setup() {
-  mic = new p5.AudioIn(); //microphone
-  mic.start();
-  c = createCanvas(128, 64);
-
   frameRate(45);
+  c = createCanvas(128, 64);
+  let ac = getAudioContext();
+
+  ac.suspend().then(function() {
+    var myButton = createButton('click to start audio');
+    myButton.position(0, 0);
+
+    userStartAudio(myButton, function() {
+      mic = new p5.AudioIn(); //microphone
+      mic.start();
+
+      started = true;
+      myButton.remove();
+    });
+  });
 }
 
 let count = 0;
