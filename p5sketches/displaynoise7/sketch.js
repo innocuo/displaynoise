@@ -6,11 +6,11 @@ const screenColor = { r: 99, g: 212, b: 255 };
 
 let start_angle = 0; //angle at the start of each draw cycle
 let curr_speed = 20;
-let curr_inc = 28;
+
+const angle_increment_fixed = false;
+let angle_increment = 28;
 const inc_every = 1;
 let curr_inc_every = 0;
-
-let pix_val = 0;
 
 let row_height = 8;
 const row_total = 8;
@@ -47,12 +47,9 @@ function draw() {
   stroke(screenColor.r, screenColor.g, screenColor.b);
 
   const vol = mic.getLevel(); //value between 0.0 to 1.0
-  curr_inc = 1+floor(vol * 719); // value between 1 to 720
-  curr_inc %= 360;
-  
-  //if (curr_inc > 10) {
-    //curr_inc = 10;
-  //}
+  if(!angle_increment_fixed){
+    angle_increment = ( 1+floor(vol * 719) ) % 360; // value between 1 to 360
+  }
   
   display.clear();
   
@@ -67,7 +64,7 @@ function draw() {
   
   // move from top row to bottom row
   for (let row = 0; row < row_total; row += 1) {
-    let tmp_angle = start_angle;
+    let current_angle = start_angle; //reset the angle for each row
     curr_inc_every = 0;
 
     let curr_row = ceil((row + 1) / row_height) - 1;
@@ -77,9 +74,9 @@ function draw() {
       display.moveTo(col * 8, row);
 
       for (let sub_col = 0; sub_col < 8; sub_col++) {
-        tmp_angle += get_inc() * (curr_row + 1);
+        current_angle += get_angle_increment() * (curr_row + 1);
 
-        let sin1 = sin((tmp_angle * PI) / 180);
+        let sin1 = sin((current_angle * PI) / 180);
         let wave_multiplier = 20 * vol;
         let wave_val = sin1 + 1; // now values go from 0 to 2;
         wave_val *= wave_multiplier;
@@ -108,11 +105,11 @@ function draw() {
   }
 }
 
-function get_inc() {
+function get_angle_increment() {
   curr_inc_every++;
   if (curr_inc_every == inc_every) {
     curr_inc_every = 0;
-    return curr_inc;
+    return angle_increment;
   }
   return 0;
 }
@@ -120,25 +117,16 @@ function get_inc() {
 function keyPressed() {
   switch (key) {
     case 'J':
-      curr_inc += 0.5;
+      angle_increment += 0.5;
       break;
     case 'K':
-      curr_inc -= 0.5;
+      angle_increment -= 0.5;
       break;
     case 'U':
       curr_speed += 0.5;
       break;
     case 'I':
       curr_speed -= 0.5;
-      break;
-    case 'G':
-      curr_inc2 += 0.5;
-      break;
-    case 'H':
-      curr_inc2 -= 0.5;
-      break;
-    case 'L':
-      pix_val = random(1, 255);
       break;
     case 'M':
       row_height += 1;
@@ -147,5 +135,5 @@ function keyPressed() {
       }
       break;
   }
-  console.log(curr_inc, curr_speed, row_height, pix_val);
+  console.log(angle_increment, curr_speed, row_height);
 }
