@@ -4,8 +4,8 @@ let started = false;
 let mic;
 const screenColor = { r: 99, g: 212, b: 255 };
 
-let curr_angle = 0;
-let curr_speed = 0;
+let start_angle = 0; //angle at the start of each draw cycle
+let curr_speed = 20;
 let curr_inc = 28;
 const inc_every = 1;
 let curr_inc_every = 0;
@@ -43,41 +43,31 @@ let count = 0;
 function draw() {
   if (!started) return;
 
-  // curr_angle = 0;
-  const vol = mic.getLevel();
-  curr_inc = 2 * (ceil(9 * vol * 100) - 1); // 2000* vol;
-  curr_inc %= 360;
-  if (curr_inc > 255) {
-    curr_inc = 10;
-  }
-  curr_speed = 50; // * vol;
-  if (count == 0) {
-    display.clear();
-  }
-  count++;
-  if (count > 0) {
-    count = 0;
-  }
-
   fill(screenColor.r, screenColor.g, screenColor.b);
   stroke(screenColor.r, screenColor.g, screenColor.b);
 
+  const vol = mic.getLevel(); //value between 0.0 to 1.0
+  curr_inc = 1+floor(vol * 719); // value between 1 to 720
+  curr_inc %= 360;
+  
+  //if (curr_inc > 10) {
+    //curr_inc = 10;
+  //}
+  
+  display.clear();
+  
   // there are 16 columns, 8 rows. Each "cell" is 8x8  pixels.
   // we traverse the display from left to right from top to bottom.
   // we draw pixels on vertical lines of 8 pixels.
 
-  // curr_angle = 0;
-
-  curr_angle += curr_speed;
-  if (abs(curr_angle) > 360) {
-    curr_angle %= 360;
+  start_angle += curr_speed;
+  if (abs(start_angle) > 360) {
+    start_angle %= 360;
   }
-  if (vol < 10) {
-    curr_angle -= 2;
-  }
+  
   // move from top row to bottom row
   for (let row = 0; row < row_total; row += 1) {
-    let tmp_angle = curr_angle;
+    let tmp_angle = start_angle;
     curr_inc_every = 0;
 
     let curr_row = ceil((row + 1) / row_height) - 1;
@@ -90,7 +80,7 @@ function draw() {
         tmp_angle += get_inc() * (curr_row + 1);
 
         let sin1 = sin((tmp_angle * PI) / 180);
-        let wave_multiplier = 50 * vol;
+        let wave_multiplier = 20 * vol;
         let wave_val = sin1 + 1; // now values go from 0 to 2;
         wave_val *= wave_multiplier;
         const pixel_pos =
