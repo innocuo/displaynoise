@@ -9,8 +9,7 @@ let curr_speed = 20;
 
 const angle_increment_fixed = false;
 let angle_increment = 28;
-const inc_every = 1;
-let curr_inc_every = 0;
+const segment_width = 1; //how many pixels before we change the angle, best if value is between 1 to 8
 
 let row_height = 8;
 const row_total = 8;
@@ -50,6 +49,7 @@ function draw() {
   if(!angle_increment_fixed){
     angle_increment = ( 1+floor(vol * 719) ) % 360; // value between 1 to 360
   }
+  const amplitude = 8 * vol; //value between 0 to 20, more volume, more amplitude;
   
   display.clear();
   
@@ -65,8 +65,7 @@ function draw() {
   // move from top row to bottom row
   for (let row = 0; row < row_total; row += 1) {
     let current_angle = start_angle; //reset the angle for each row
-    curr_inc_every = 0;
-
+    
     let curr_row = ceil((row + 1) / row_height) - 1;
     // move from left to right
     for (let col = 0; col < 16; col++) {
@@ -74,18 +73,18 @@ function draw() {
       display.moveTo(col * 8, row);
 
       for (let sub_col = 0; sub_col < 8; sub_col++) {
-        current_angle += get_angle_increment() * (curr_row + 1);
+        let x_pos = 8*col + sub_col //current x absolute position
+        
+        //only increment the angle when we've reached the segment width
+        if(x_pos % segment_width == 0)
+          current_angle += angle_increment * (curr_row + 1);
 
-        let sin1 = sin((current_angle * PI) / 180);
-        let wave_multiplier = 20 * vol;
-        let wave_val = sin1 + 1; // now values go from 0 to 2;
-        wave_val *= wave_multiplier;
+        let wave_value = sin((current_angle * PI) / 180) + 1; // value from 0.0 to 2.0;
+        wave_value *= amplitude;
         const pixel_pos =
           curr_row * row_height * 8 +
-          round((wave_val * (8 * row_height - 1)) / 2) +
-          round(row_height * 8 * (1 - wave_multiplier) * 0.5);
-
-        const cache_pos = { x: display.get_x(), y: display.get_y() };
+          round((wave_value * (8 * row_height - 1)) / 2) +
+          round(row_height * 8 * (1 - amplitude) * 0.5);
 
         let pixel_divided = pixel_pos % 8;
         let px = {
@@ -97,21 +96,10 @@ function draw() {
           display.send(0 | (1 << (7 - pixel_divided)));
         }
 
-        //display.moveTo(cache_pos.x, cache_pos.y);
-
         display.moveToNext();
       }
     }
   }
-}
-
-function get_angle_increment() {
-  curr_inc_every++;
-  if (curr_inc_every == inc_every) {
-    curr_inc_every = 0;
-    return angle_increment;
-  }
-  return 0;
 }
 
 function keyPressed() {
