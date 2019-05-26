@@ -4,31 +4,33 @@ let started = false;
 let mic;
 const screenColor = { r: 99, g: 212, b: 255 };
 
-let curr_angle = 0;
-let curr_speed = 0;
-let curr_inc = 28;
-const inc_every = 1;
-let curr_inc_every = 0;
+let start_angle = 0; //angle at the start of each draw cycle
+let wave_speed = 20;
 
-let pix_val = 0;
+const angle_increment_fixed = false;
+let angle_increment = 1;
+const segment_width = 1; //how many pixels before we change the angle, best if value is between 1 to 8
 
-let row_height = 8;
-const row_total = 8;
+const display_width = 128;
+const display_height = 64;
+const display_rows = display_height/8; //how many 8px rows fit in the display
+const display_cols = display_width/8; //how many 8px cols fit in the display
 
-requirejs(['modules/display'], function(qdisplay) {
+let wave_count = 1; //how many waves you want to draw on the display
+
+requirejs(['../../modules/display'], function(qdisplay) {
   display = qdisplay;
-  // started = true;
 });
 
 function setup() {
   frameRate(45);
-  c = createCanvas(128, 64);
+  c = createCanvas(display_width, display_height);
   let ac = getAudioContext();
 
   ac.suspend().then(function() {
     var myButton = createButton('click to start audio');
-    myButton.position(0, 0);
-
+    myButton.elt.className = "start-audio-button";
+    
     userStartAudio(myButton, function() {
       mic = new p5.AudioIn(); //microphone
       mic.start();
@@ -41,76 +43,76 @@ function setup() {
 
 let count = 0;
 function draw() {
-  if (!started) return;
+  if (!started || !display) return;
 
-  // curr_angle = 0;
-  const vol = mic.getLevel();
-  curr_inc = 2 * (ceil(9 * vol * 100) - 1); // 2000* vol;
-  curr_inc %= 360;
-  if (curr_inc > 255) {
-    curr_inc = 10;
-  }
-  curr_speed = 50; // * vol;
-  if (count == 0) {
-    display.clear();
-  }
-  count++;
-  if (count > 0) {
-    count = 0;
-  }
-
+  let draw_wave_height = ceil(display_rows / wave_count); //unit is # of rows
+  let draw_wave_height_in_px = draw_wave_height * 8;
   fill(screenColor.r, screenColor.g, screenColor.b);
   stroke(screenColor.r, screenColor.g, screenColor.b);
 
+  let vol = mic.getLevel(); //value between 0.0 to 1.0
+
+  if(!angle_increment_fixed){
+    angle_increment = ( 1+floor(vol * 7719) ) % 360; // value between 1 to 360
+  }
+  
+  let amplitude = 39 * vol; //value between 0 to 20, more volume, more amplitude;
+  let y_amplitude_offset = round(draw_wave_height_in_px  *(1 - amplitude) * 0.5)
+  
+  display.clear();
+  
   // there are 16 columns, 8 rows. Each "cell" is 8x8  pixels.
   // we traverse the display from left to right from top to bottom.
   // we draw pixels on vertical lines of 8 pixels.
 
-  // curr_angle = 0;
-
-  curr_angle += curr_speed;
-  if (abs(curr_angle) > 360) {
-    curr_angle %= 360;
+  start_angle += wave_speed;
+  if (abs(start_angle) > 360) {
+    start_angle %= 360;
   }
-  if (vol < 10) {
-    curr_angle -= 2;
-  }
+  
   // move from top row to bottom row
-  for (let row = 0; row < row_total; row += 1) {
-    let tmp_angle = curr_angle;
-    curr_inc_every = 0;
-
-    let curr_row = ceil((row + 1) / row_height) - 1;
+  for (let row = 0; row < display_rows; row++) {
+    let current_angle = start_angle; //reset the angle for each row
+    
+    const current_wave = ceil((row + 1) / draw_wave_height) - 1;
+    const y_offset = current_wave * draw_wave_height_in_px
+    
+    //range where a y px can be drawn
+    let row_y_positions = {
+      min: row * 8,
+      max: row * 8 + 7
+    };
+    
     // move from left to right
-    for (let col = 0; col < 16; col++) {
+    for (let col = 0; col < display_cols; col++) {
       // multiplied by 8 because each col is 8 pixels wide
       display.moveTo(col * 8, row);
 
+      //we need to loop through 8px in each column
       for (let sub_col = 0; sub_col < 8; sub_col++) {
-        tmp_angle += get_inc() * (curr_row + 1);
+        let x_pos = 8*col + sub_col //current x absolute position
+        
+        //only increment the angle when we've reached the segment width
+        if(x_pos % segment_width == 0)
+          current_angle += angle_increment;
 
-        let sin1 = sin((tmp_angle * PI) / 180);
-        let wave_multiplier = 50 * vol;
-        let wave_val = sin1 + 1; // now values go from 0 to 2;
-        wave_val *= wave_multiplier;
+        let wave_value = sin((current_angle * PI) / 180) + 1; // value from 0.0 to 2.0
+        wave_value *= 0.5 //value is now between 0 to 1.0
+        wave_value *= amplitude;
+        
+        // initial y position
+        // + half of empty space of row height - amplitude, so it's centered
+        // + rounded pixel position between 0 to row height in pixels
         const pixel_pos =
-          curr_row * row_height * 8 +
-          round((wave_val * (8 * row_height - 1)) / 2) +
-          round(row_height * 8 * (1 - wave_multiplier) * 0.5);
-
-        const cache_pos = { x: display.get_x(), y: display.get_y() };
-
-        let pixel_divided = pixel_pos % 8;
-        let px = {
-          min: row * 8,
-          max: row * 8 + 7
-        };
-
-        if (pixel_pos >= px.min && pixel_pos <= px.max) {
-          display.send(0 | (1 << (7 - pixel_divided)));
+          y_offset + 
+          y_amplitude_offset+
+          round(wave_value * (draw_wave_height_in_px -1) ); //say row is 64px, values should go from 0 to 63, that's  why we do a -1
+        
+        //if the pixel position is in the current row, render it
+        if (pixel_pos >= row_y_positions.min && pixel_pos <= row_y_positions.max) {
+          let pixel_in_sub_col = pixel_pos % 8;
+          display.send(0 | (1 << (7 - pixel_in_sub_col)));
         }
-
-        //display.moveTo(cache_pos.x, cache_pos.y);
 
         display.moveToNext();
       }
@@ -118,44 +120,20 @@ function draw() {
   }
 }
 
-function get_inc() {
-  curr_inc_every++;
-  if (curr_inc_every == inc_every) {
-    curr_inc_every = 0;
-    return curr_inc;
-  }
-  return 0;
-}
-
 function keyPressed() {
   switch (key) {
     case 'J':
-      curr_inc += 0.5;
+      angle_increment += 0.5;
       break;
     case 'K':
-      curr_inc -= 0.5;
+      angle_increment -= 0.5;
       break;
     case 'U':
-      curr_speed += 0.5;
+      wave_speed += 0.5;
       break;
     case 'I':
-      curr_speed -= 0.5;
-      break;
-    case 'G':
-      curr_inc2 += 0.5;
-      break;
-    case 'H':
-      curr_inc2 -= 0.5;
-      break;
-    case 'L':
-      pix_val = random(1, 255);
-      break;
-    case 'M':
-      row_height += 1;
-      if (row_height > 8) {
-        row_height = 1;
-      }
+      wave_speed -= 0.5;
       break;
   }
-  console.log(curr_inc, curr_speed, row_height, pix_val);
+  console.log(angle_increment, wave_speed);
 }
