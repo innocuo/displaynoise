@@ -29,8 +29,8 @@ function setup() {
 
   ac.suspend().then(function() {
     var myButton = createButton('click to start audio');
-    myButton.position(0, 0);
-
+    myButton.elt.className = "start-audio-button";
+    
     userStartAudio(myButton, function() {
       mic = new p5.AudioIn(); //microphone
       mic.start();
@@ -43,7 +43,7 @@ function setup() {
 
 let count = 0;
 function draw() {
-  if (!started) return;
+  if (!started || !display) return;
 
   let draw_wave_height = ceil(display_rows / wave_count); //unit is # of rows
   let draw_wave_height_in_px = draw_wave_height * 8;
