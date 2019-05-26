@@ -20,7 +20,6 @@ let wave_count = 1; //how many waves you want to draw on the display
 
 requirejs(['../../modules/display'], function(qdisplay) {
   display = qdisplay;
-  // started = true;
 });
 
 function setup() {
@@ -46,16 +45,19 @@ let count = 0;
 function draw() {
   if (!started) return;
 
-  let draw_wave_height = ceil(display_rows / wave_count);
-
+  let draw_wave_height = ceil(display_rows / wave_count); //unit is # of rows
+  let draw_wave_height_in_px = draw_wave_height * 8;
   fill(screenColor.r, screenColor.g, screenColor.b);
   stroke(screenColor.r, screenColor.g, screenColor.b);
 
-  const vol = mic.getLevel(); //value between 0.0 to 1.0
+  let vol = mic.getLevel(); //value between 0.0 to 1.0
+
   if(!angle_increment_fixed){
     angle_increment = ( 1+floor(vol * 7719) ) % 360; // value between 1 to 360
   }
-  const amplitude = 39 * vol; //value between 0 to 20, more volume, more amplitude;
+  
+  let amplitude = 39 * vol; //value between 0 to 20, more volume, more amplitude;
+  let y_amplitude_offset = round(draw_wave_height_in_px  *(1 - amplitude) * 0.5)
   
   display.clear();
   
@@ -72,7 +74,14 @@ function draw() {
   for (let row = 0; row < display_rows; row++) {
     let current_angle = start_angle; //reset the angle for each row
     
-    let current_wave = ceil((row + 1) / draw_wave_height) - 1;
+    const current_wave = ceil((row + 1) / draw_wave_height) - 1;
+    const y_offset = current_wave * draw_wave_height_in_px
+    
+    //range where a y px can be drawn
+    let row_y_positions = {
+      min: row * 8,
+      max: row * 8 + 7
+    };
     
     // move from left to right
     for (let col = 0; col < display_cols; col++) {
@@ -87,22 +96,22 @@ function draw() {
         if(x_pos % segment_width == 0)
           current_angle += angle_increment;
 
-        let wave_value = sin((current_angle * PI) / 180) + 1; // value from 0.0 to 2.0;
+        let wave_value = sin((current_angle * PI) / 180) + 1; // value from 0.0 to 2.0
+        wave_value *= 0.5 //value is now between 0 to 1.0
         wave_value *= amplitude;
-        const y_offset = current_wave * draw_wave_height * 8
+        
+        // initial y position
+        // + half of empty space of row height - amplitude, so it's centered
+        // + rounded pixel position between 0 to row height in pixels
         const pixel_pos =
-          y_offset +
-          round((wave_value * (8 * draw_wave_height - 1)) / 2) +
-          round(draw_wave_height * 8 * (1 - amplitude) * 0.5);
-
-        let pixel_divided = pixel_pos % 8;
-        let px = {
-          min: row * 8,
-          max: row * 8 + 7
-        };
-
-        if (pixel_pos >= px.min && pixel_pos <= px.max) {
-          display.send(0 | (1 << (7 - pixel_divided)));
+          y_offset + 
+          y_amplitude_offset+
+          round(wave_value * (draw_wave_height_in_px -1) ); //say row is 64px, values should go from 0 to 63, that's  why we do a -1
+        
+        //if the pixel position is in the current row, render it
+        if (pixel_pos >= row_y_positions.min && pixel_pos <= row_y_positions.max) {
+          let pixel_in_sub_col = pixel_pos % 8;
+          display.send(0 | (1 << (7 - pixel_in_sub_col)));
         }
 
         display.moveToNext();
