@@ -18,7 +18,7 @@ const display_cols = display_width/8; //how many 8px cols fit in the display
 
 let wave_count = 1; //how many waves you want to draw on the display
 
-requirejs(['../../modules/display'], function(qdisplay) {
+requirejs(['modules/display'], function(qdisplay) {
   display = qdisplay;
 });
 
