@@ -45,8 +45,16 @@ export function getSketchEntryById(id) {
   return sketchEntries.find((entry) => entry.id === id);
 }
 
+const sketchModules = import.meta.glob("./*/index.js");
+
 async function defaultLoadSketch(entry) {
-  const module = await import("./" + entry.id + "/index.js");
+  const loadModule = sketchModules["./" + entry.id + "/index.js"];
+
+  if (!loadModule) {
+    throw new Error(`No sketch module found for "${entry.id}".`);
+  }
+
+  const module = await loadModule();
   return module.createSketch();
 }
 
