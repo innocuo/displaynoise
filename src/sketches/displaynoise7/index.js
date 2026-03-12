@@ -1,7 +1,7 @@
 import 'p5.sound';
 import { createDisplay } from '../shared/display.js';
 
-export function createSketch() {
+export function createSketch(options = {}) {
   return function(p) {
 let display;
 let started = false;
@@ -36,10 +36,16 @@ function setup() {
     var myButton = p.createButton('click to start audio');
     myButton.elt.className = "start-audio-button";
     
-    myButton.mousePressed(function() {
+    myButton.mousePressed(async function() {
+      const deviceId = options.requestAudioInputDevice ? await options.requestAudioInputDevice() : null;
+
       p.userStartAudio();
       mic = new p5.AudioIn(); //microphone
-      mic.start();
+      if (deviceId) {
+        await mic.audioIn.open(deviceId);
+      } else {
+        mic.start();
+      }
       amp = new p5.Amplitude();
       amp.setInput(mic);
 

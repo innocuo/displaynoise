@@ -6,6 +6,10 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+  sketchOptions: {
+    type: Object,
+    default: () => ({}),
+  },
 });
 
 const container = ref(null);
@@ -42,7 +46,7 @@ async function mountSketch() {
       globalThis.p5 = p5Constructor;
     }
 
-    const sketchFactory = await props.sketchLoader();
+    const sketchFactory = await props.sketchLoader(props.sketchOptions);
 
     if (token !== mountToken || !container.value) {
       return;
@@ -59,7 +63,7 @@ onMounted(() => {
 });
 
 watch(
-  () => props.sketchLoader,
+  () => [props.sketchLoader, props.sketchOptions],
   () => {
     mountSketch();
   },
