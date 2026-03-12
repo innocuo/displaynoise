@@ -31,3 +31,4 @@ _current todo_
 - display sketches bigger
 - other sort of generative examples
 - interactivity? other than mic. (no longer too interested in it)
+- figuring out how to deploy it as github page?
