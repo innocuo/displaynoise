@@ -1,4 +1,3 @@
-import 'p5.sound';
 import { createDisplay } from '../shared/display.js';
 
 export function createSketch(options = {}) {

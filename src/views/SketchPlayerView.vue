@@ -9,6 +9,9 @@ const route = useRoute();
 
 const sketchEntry = computed(() => getSketchEntryById(route.params.id));
 const sketchLoader = computed(() => getSketchLoader(sketchEntry.value));
+const sketchOptions = computed(() => ({
+  requiresSound: Boolean(sketchEntry.value?.requiresSound),
+}));
 </script>
 
 <template>
@@ -23,7 +26,7 @@ const sketchLoader = computed(() => getSketchLoader(sketchEntry.value));
     </div>
 
     <p class="lead">{{ sketchEntry.summary }}</p>
-    <P5Canvas v-if="sketchLoader" :sketch-loader="sketchLoader" />
+    <P5Canvas v-if="sketchLoader" :sketch-loader="sketchLoader" :sketch-options="sketchOptions" />
   </section>
 
   <section v-else class="panel">

@@ -17,6 +17,7 @@ const errorMessage = ref('');
 
 let currentInstance = null;
 let p5Constructor = null;
+let soundLoaded = false;
 let mountToken = 0;
 
 const hasError = computed(() => errorMessage.value.length > 0);
@@ -44,6 +45,11 @@ async function mountSketch() {
       const p5Module = await import('p5');
       p5Constructor = p5Module.default;
       globalThis.p5 = p5Constructor;
+    }
+
+    if (props.sketchOptions.requiresSound && !soundLoaded) {
+      await import('p5.sound');
+      soundLoaded = true;
     }
 
     const sketchFactory = await props.sketchLoader(props.sketchOptions);

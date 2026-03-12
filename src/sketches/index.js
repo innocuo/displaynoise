@@ -28,16 +28,19 @@ export const sketchEntries = [
     id: "displaynoise6",
     title: "displaynoise6",
     summary: "",
+    requiresSound: true,
   },
   {
     id: "displaynoise7",
     title: "displaynoise7",
     summary: "",
+    requiresSound: true,
   },
   {
     id: "displaynoise8",
     title: "displaynoise8",
     summary: "",
+    requiresSound: true,
   },
 ];
 
