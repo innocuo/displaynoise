@@ -1,0 +1,1 @@
+function r(i){let n={x:0,y:0},o={moveTo:function(e,t){n.x=e,n.y=t},moveToNext:function(){n.x+=1,n.x>=128&&o.moveTo(0,n.y+1)},send:function(e){for(let t=7;t>=0;t--)e>>t&1&&i.point(n.x,8*n.y+(7-t))},sendAndMove:function(e){o.send(e),o.moveToNext()},get_x:function(){return n.x},get_y:function(){return n.y},clear:function(){i.background(0)}};return o}export{r as c};
